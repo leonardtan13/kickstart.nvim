@@ -683,6 +683,8 @@ require('lazy').setup({
         -- But for many setups, the LSP (`ts_ls`) will work just fine
         -- ts_ls = {},
         --
+        biome = {},
+        oxlint = {},
 
         lua_ls = {
           -- cmd = { ... },
@@ -744,37 +746,52 @@ require('lazy').setup({
       {
         '<leader>f',
         function()
-          require('conform').format { async = true, lsp_format = 'fallback' }
+          require('conform').format { async = true }
         end,
         mode = '',
         desc = '[F]ormat buffer',
       },
     },
-    opts = {
-      notify_on_error = false,
-      format_on_save = function(bufnr)
-        -- Disable "format_on_save lsp_fallback" for languages that don't
-        -- have a well standardized coding style. You can add additional
-        -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
-        if disable_filetypes[vim.bo[bufnr].filetype] then
-          return nil
-        else
-          return {
-            timeout_ms = 500,
-            lsp_format = 'fallback',
-          }
-        end
-      end,
-      formatters_by_ft = {
-        lua = { 'stylua' },
-        -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
-        --
-        -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
-      },
-    },
+    opts = function()
+      return {
+        notify_on_error = false,
+        format_on_save = function(bufnr)
+          -- Disable "format_on_save lsp_fallback" for languages that don't
+          -- have a well standardized coding style. You can add additional
+          -- languages here or re-enable it for the disabled ones.
+          local disable_filetypes = { c = true, cpp = true }
+          if disable_filetypes[vim.bo[bufnr].filetype] then
+            return nil
+          else
+            return {
+              timeout_ms = 500,
+              lsp_format = 'fallback',
+            }
+          end
+        end,
+        formatters_by_ft = {
+          lua = { 'stylua' },
+          -- Conform can also run multiple formatters sequentially
+          -- python = { "isort", "black" },
+          --
+          -- You can use 'stop_after_first' to run the first available formatter from the list
+          -- javascript = { "prettierd", "prettier", stop_after_first = true },
+          -- Use Biome for the whole JS/TS stack
+          javascript = { 'biome' },
+          javascriptreact = { 'biome' },
+          typescript = { 'biome' },
+          typescriptreact = { 'biome' },
+          json = { 'biome' },
+          jsonc = { 'biome' },
+          -- Optional: enable for CSS if you want Biome to format it
+          css = { 'biome' },
+          -- Framework filetypes that embed JS/TS
+          astro = { 'biome' },
+          svelte = { 'biome' },
+          vue = { 'biome' },
+        },
+      }
+    end,
   },
 
   { -- Autocompletion
@@ -974,9 +991,9 @@ require('lazy').setup({
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
+  require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
