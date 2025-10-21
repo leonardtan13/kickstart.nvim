@@ -141,6 +141,10 @@ vim.o.timeoutlen = 300
 vim.o.splitright = true
 vim.o.splitbelow = true
 
+-- smart indent
+vim.o.autoindent = true
+vim.o.smartindent = true
+
 -- Sets how neovim will display certain whitespace characters in the editor.
 --  See `:help 'list'`
 --  and `:help 'listchars'`
@@ -670,6 +674,10 @@ require('lazy').setup({
       --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
+      local util = require 'lspconfig.util'
+
+      local is_deno = util.root_pattern('deno.json', 'deno.jsonc')
+      local ts_roots = util.root_pattern('tsconfig.json', 'jsconfig.json', 'package.json', '.git')
       local servers = {
         -- clangd = {},
         -- gopls = {},
@@ -681,10 +689,22 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
-        --
+        -- ts_ls = {
+        --   root_dir = function(name)
+        --     if is_deno(name) then
+        --       return nil
+        --     end
+        --     return ts_roots(name)
+        --   end,
+        --   single_file_support = false,
+        -- },
+        ts_ls = {},
         biome = {},
         oxlint = {},
+
+        -- SQL stuff
+        pgformatter = {},
+        postgrestools = {},
 
         lua_ls = {
           -- cmd = { ... },
@@ -994,7 +1014,7 @@ require('lazy').setup({
   require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
