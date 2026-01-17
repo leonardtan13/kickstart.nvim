@@ -170,6 +170,16 @@ vim.o.scrolloff = 10
 -- See `:help 'confirm'`
 vim.o.confirm = true
 
+-- C/C++ indentation to match clang-format (LLVM defaults)
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'c', 'cpp' },
+  callback = function()
+    vim.opt_local.tabstop = 2
+    vim.opt_local.shiftwidth = 2
+    vim.opt_local.expandtab = true
+  end,
+})
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -676,7 +686,7 @@ require('lazy').setup({
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
 
       local servers = {
-        -- clangd = {},
+        clangd = {},
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
@@ -739,6 +749,7 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'clang-format', -- Used to format C/C++ code
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -780,7 +791,7 @@ require('lazy').setup({
           -- Disable "format_on_save lsp_fallback" for languages that don't
           -- have a well standardized coding style. You can add additional
           -- languages here or re-enable it for the disabled ones.
-          local disable_filetypes = { c = true, cpp = true }
+          local disable_filetypes = {}
           if disable_filetypes[vim.bo[bufnr].filetype] then
             return nil
           else
@@ -792,6 +803,8 @@ require('lazy').setup({
         end,
         formatters_by_ft = {
           lua = { 'stylua' },
+          c = { 'clang-format' },
+          cpp = { 'clang-format' },
           -- Conform can also run multiple formatters sequentially
           -- python = { "isort", "black" },
           --
@@ -979,7 +992,7 @@ require('lazy').setup({
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
-    main = 'nvim-treesitter.configs', -- Sets main module to use for opts
+    main = 'nvim-treesitter', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
       ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
