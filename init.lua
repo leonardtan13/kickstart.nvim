@@ -686,7 +686,18 @@ require('lazy').setup({
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
 
       local servers = {
-        clangd = {},
+        clangd = {
+          filetypes = { 'c', 'cpp', 'objc', 'objcpp' },
+          init_options = {
+            clangdFileStatus = true,
+          },
+          cmd = {
+            'clangd',
+            '--header-insertion=never',
+            '--completion-style=detailed',
+            '--pch-storage=memory',
+          },
+        },
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
