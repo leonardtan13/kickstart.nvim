@@ -722,7 +722,6 @@ require('lazy').setup({
 
         -- SQL stuff
         pgformatter = {},
-        postgrestools = {},
 
         -- python
         ty = {}, -- python lsp
